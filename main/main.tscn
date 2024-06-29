@@ -1,0 +1,123 @@
+[gd_scene load_steps=11 format=3 uid="uid://bq3s8nage8460"]
+
+[ext_resource type="Script" path="res://main/main.cs" id="1_fycdx"]
+[ext_resource type="Script" path="res://gpu/Gpu.cs" id="2_gdsi4"]
+[ext_resource type="Script" path="res://cpu/Cpu.cs" id="3_1gklv"]
+[ext_resource type="Script" path="res://camera/CameraSpring.cs" id="4_w2g7f"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2p23n"]
+albedo_color = Color(0.756863, 0.588235, 0.909804, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_nv4sl"]
+noise_type = 4
+frequency = 0.1
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_5u3g6"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_kls3r"]
+sky_material = SubResource("ProceduralSkyMaterial_5u3g6")
+
+[sub_resource type="Environment" id="Environment_b1g2t"]
+background_mode = 2
+sky = SubResource("Sky_kls3r")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_fpjj0"]
+seed = 610
+
+[node name="Main" type="Node3D" node_paths=PackedStringArray("voxelLabel", "fpsLabel", "gpuInstance", "gpuButton", "gpuLabel", "cpuInstance", "cpuButton", "cpuLabel", "clearButton")]
+script = ExtResource("1_fycdx")
+voxelLabel = NodePath("Control/Method/HBoxContainer/voxel")
+fpsLabel = NodePath("Control/Method/HBoxContainer/fps")
+gpuInstance = NodePath("gpu")
+gpuButton = NodePath("Control/Method/HBoxContainer/gpu")
+gpuLabel = NodePath("Control/Method/HBoxContainer/gpu_time")
+cpuInstance = NodePath("cpu")
+cpuButton = NodePath("Control/Method/HBoxContainer/cpu")
+cpuLabel = NodePath("Control/Method/HBoxContainer/cpu_time")
+clearButton = NodePath("Control/Method/HBoxContainer/clear")
+material = SubResource("StandardMaterial3D_2p23n")
+fastNoise = SubResource("FastNoiseLite_nv4sl")
+resolution = 32
+size = 32
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_b1g2t")
+
+[node name="gpu" type="MeshInstance3D" parent="."]
+script = ExtResource("2_gdsi4")
+
+[node name="cpu" type="MeshInstance3D" parent="."]
+script = ExtResource("3_1gklv")
+noiser = SubResource("FastNoiseLite_fpjj0")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Method" type="VBoxContainer" parent="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/Method"]
+layout_mode = 2
+size_flags_vertical = 2
+
+[node name="voxel" type="Label" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "voxel:"
+
+[node name="fps" type="Label" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+text = "FPS:"
+
+[node name="gpu" type="Button" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "GPU:"
+
+[node name="gpu_time" type="Label" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+
+[node name="cpu" type="Button" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "CPU:"
+
+[node name="cpu_time" type="Label" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+
+[node name="clear" type="Button" parent="Control/Method/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Clear"
+
+[node name="SpringArm3D" type="SpringArm3D" parent="." node_paths=PackedStringArray("camera")]
+spring_length = 128.0
+script = ExtResource("4_w2g7f")
+camera = NodePath("Camera3D")
+
+[node name="Camera3D" type="Camera3D" parent="SpringArm3D"]
